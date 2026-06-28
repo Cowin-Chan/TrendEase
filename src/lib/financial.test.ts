@@ -1,10 +1,11 @@
+import { describe, it, expect } from 'vitest';
 // @ts-nocheck
 import {
   calculateSupportResistance,
   detectBreakout,
   calculateSMA,
   getCyclicalSuggestion,
-  OHLCV
+  type OHLCV
 } from './financial';
 
 describe('Financial Module', () => {
@@ -21,8 +22,8 @@ describe('Financial Module', () => {
       expect(result.support1).toBe(100); // (125 * 2) - 150
       expect(result.resistance2).toBe(175); // 125 + 50
       expect(result.support2).toBe(75); // 125 - 50
-      expect(result.resistance3).toBe(175); // 150 + 2 * (125 - 100)
-      expect(result.support3).toBe(75); // 100 - 2 * (150 - 125)
+      expect(result.resistance3).toBe(200); // 150 + 2 * (125 - 100)
+      expect(result.support3).toBe(50); // 100 - 2 * (150 - 125)
     });
   });
 
@@ -73,12 +74,7 @@ describe('Financial Module', () => {
     });
 
     it('generates BUY signal on Golden Cross', () => {
-      const data: OHLCV[] = [
-        // Long term stays flat at 10, short term starts below 10 and crosses above
-        { open: 1, high: 2, low: 0, close: 5, volume: 100 },
-        { open: 1, high: 2, low: 0, close: 10, volume: 100 },
-        { open: 1, high: 2, low: 0, close: 15, volume: 100 }, // short (2): 12.5, long(3): 10
-      ];
+      
       // At index 1: shortSMA(2) = 7.5, longSMA(3) = null -> HOLD
       // Need 4 items to check prev vs current
       const data2: OHLCV[] = [
@@ -101,3 +97,4 @@ describe('Financial Module', () => {
     });
   });
 });
+
