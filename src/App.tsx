@@ -15,6 +15,7 @@ export default function App() {
   const [ohlcvData, setOhlcvData] = useState<OHLCV[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isEasternStyle, setIsEasternStyle] = useState(false);
 
   const formatVolume = (vol: number) => {
     if (vol >= 1e9) return (vol / 1e9).toFixed(2) + 'B';
@@ -75,12 +76,15 @@ export default function App() {
       height: 400,
     });
 
+    const upColor = isEasternStyle ? '#ff006e' : '#00ff9d';
+    const downColor = isEasternStyle ? '#00ff9d' : '#ff006e';
+
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#00ff9d',
-      downColor: '#ff006e',
+      upColor,
+      downColor,
       borderVisible: false,
-      wickUpColor: '#00ff9d',
-      wickDownColor: '#ff006e',
+      wickUpColor: upColor,
+      wickDownColor: downColor,
     });
 
     const formattedData = ohlcvData.map(d => ({
@@ -161,7 +165,7 @@ export default function App() {
       resizeObserver.disconnect();
       chart.remove();
     };
-  }, [ohlcvData]);
+  }, [ohlcvData, isEasternStyle]);
 
   const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -191,8 +195,22 @@ export default function App() {
           <button className="nav-btn">Portfolio</button>
           <button className="nav-btn">Signals</button>
         </nav>
-        <div className="user-profile">
-          <div className="avatar"></div>
+        
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className="theme-toggle-container">
+            <span className="theme-toggle-label">Eastern</span>
+            <label className="theme-toggle">
+              <input 
+                type="checkbox" 
+                checked={isEasternStyle} 
+                onChange={(e) => setIsEasternStyle(e.target.checked)} 
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+          <div className="user-profile">
+            <div className="avatar"></div>
+          </div>
         </div>
       </header>
 
@@ -204,9 +222,17 @@ export default function App() {
               {ohlcvData.length > 0 ? (
                 <>
                   <span className="price">${ohlcvData[ohlcvData.length - 1].close.toFixed(2)}</span>
-                  <span className={`change ${ohlcvData[ohlcvData.length - 1].close >= ohlcvData[0].open ? 'positive' : 'negative'}`}>
-                    {((ohlcvData[ohlcvData.length - 1].close - ohlcvData[0].open) / ohlcvData[0].open * 100).toFixed(2)}%
-                  </span>
+                  {(() => {
+                    const isPositive = ohlcvData[ohlcvData.length - 1].close >= ohlcvData[0].open;
+                    const changeClass = isEasternStyle 
+                      ? (isPositive ? 'negative' : 'positive') 
+                      : (isPositive ? 'positive' : 'negative');
+                    return (
+                      <span className={`change ${changeClass}`}>
+                        {((ohlcvData[ohlcvData.length - 1].close - ohlcvData[0].open) / ohlcvData[0].open * 100).toFixed(2)}%
+                      </span>
+                    );
+                  })()}
                 </>
               ) : (
                 <span className="price">{isLoading ? 'Loading...' : 'No Data'}</span>
@@ -248,14 +274,24 @@ export default function App() {
 
           <div className="recent-signals card">
             <h3>Recent Signals</h3>
-            <div className={`signal-item ${signal.toLowerCase() === 'buy' ? 'buy' : signal.toLowerCase() === 'sell' ? 'sell' : 'hold'}`}>
-              <div className="signal-icon"></div>
-              <div className="signal-details">
-                <span className="signal-asset">{ticker} (Auto)</span>
-                <span className="signal-type">{signal === 'BUY' ? 'Strong Buy' : signal === 'SELL' ? 'Sell' : 'Hold'}</span>
-              </div>
-              <span className="signal-time">Just now</span>
-            </div>
+            {(() => {
+              const isBuy = signal.toLowerCase() === 'buy';
+              const isSell = signal.toLowerCase() === 'sell';
+              let signalClass = 'hold';
+              if (isBuy) signalClass = isEasternStyle ? 'sell' : 'buy';
+              else if (isSell) signalClass = isEasternStyle ? 'buy' : 'sell';
+
+              return (
+                <div className={`signal-item ${signalClass}`}>
+                  <div className="signal-icon"></div>
+                  <div className="signal-details">
+                    <span className="signal-asset">{ticker} (Auto)</span>
+                    <span className="signal-type">{signal === 'BUY' ? 'Strong Buy' : signal === 'SELL' ? 'Sell' : 'Hold'}</span>
+                  </div>
+                  <span className="signal-time">Just now</span>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="legend-guide card">
