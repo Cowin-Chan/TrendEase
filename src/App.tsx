@@ -258,24 +258,23 @@ export default function App() {
 
           <div className="legend-guide card">
             <h3>Legend & Guide</h3>
-            <ul className="stats-list" style={{ fontSize: '0.9em' }}>
-              <li>
-                <span style={{ color: '#2962FF', fontWeight: 'bold' }}>SMA(3)</span>
-                <strong>3-Period Average</strong>
-              </li>
-              <li>
-                <span style={{ color: '#FF6D00', fontWeight: 'bold' }}>SMA(7)</span>
-                <strong>7-Period Average</strong>
-              </li>
-              <li>
-                <span style={{ color: '#ff006e', fontWeight: 'bold' }}>R1</span>
-                <strong>Resistance Level 1</strong>
-              </li>
-              <li>
-                <span style={{ color: '#00ff9d', fontWeight: 'bold' }}>S1</span>
-                <strong>Support Level 1</strong>
-              </li>
-            </ul>
+            <div style={{ fontSize: '0.85em', color: '#a0a5b1', marginTop: '15px', lineHeight: '1.5' }}>
+              <p style={{ marginBottom: '12px' }}>
+                <strong style={{ color: '#2962FF' }}>SMA(3)</strong> & <strong style={{ color: '#FF6D00' }}>SMA(7)</strong>: 
+                These are short and long-term price averages. <br/>
+                <strong style={{ color: '#fff' }}>Decision:</strong> When the blue SMA(3) crosses <em>above</em> the orange SMA(7), momentum is shifting upwards (<strong>Buy Signal</strong>). When it crosses <em>below</em>, momentum is shifting downwards (<strong>Sell Signal</strong>).
+              </p>
+              <p style={{ marginBottom: '12px' }}>
+                <strong style={{ color: '#00ff9d' }}>S1 (Support)</strong>: 
+                The historical price "floor". <br/>
+                <strong style={{ color: '#fff' }}>Decision:</strong> Prices often bounce up from this line, making it a potentially safe zone to <strong>Buy</strong>.
+              </p>
+              <p>
+                <strong style={{ color: '#ff006e' }}>R1 (Resistance)</strong>: 
+                The historical price "ceiling". <br/>
+                <strong style={{ color: '#fff' }}>Decision:</strong> Prices often struggle to break above this line, making it a good target to <strong>Sell / Take Profits</strong>.
+              </p>
+            </div>
           </div>
         </div>
       </main>
