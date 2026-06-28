@@ -1,39 +1,46 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
-import { createChart, ColorType, CandlestickSeries, LineSeries } from 'lightweight-charts';
+import { useEffect, useRef, useState, FormEvent } from 'react';
+import { createChart, ColorType, CandlestickSeries, LineSeries, Time } from 'lightweight-charts';
 import { calculateSupportResistance, getCyclicalSuggestion, type OHLCV, calculateSMA, type TradingSignal } from './lib/financial';
+import { fetchStockData } from './lib/api';
 import './App.css';
 
-const DUMMY_DATA = [
-  { time: '2026-06-01', open: 100.1, high: 102.3, low: 99.8, close: 101.5 },
-  { time: '2026-06-02', open: 101.5, high: 104.2, low: 101.1, close: 103.8 },
-  { time: '2026-06-03', open: 103.8, high: 105.0, low: 102.5, close: 102.9 },
-  { time: '2026-06-04', open: 102.9, high: 103.2, low: 98.5, close: 99.2 },
-  { time: '2026-06-05', open: 99.2, high: 101.0, low: 98.0, close: 100.5 },
-  { time: '2026-06-06', open: 100.5, high: 106.0, low: 100.0, close: 105.2 },
-  { time: '2026-06-07', open: 105.2, high: 108.5, low: 104.8, close: 108.1 },
-  { time: '2026-06-08', open: 108.1, high: 110.0, low: 107.5, close: 109.2 },
-  { time: '2026-06-09', open: 109.2, high: 109.5, low: 105.0, close: 106.1 },
-  { time: '2026-06-10', open: 106.1, high: 107.0, low: 104.2, close: 106.8 },
-  { time: '2026-06-11', open: 106.8, high: 112.5, low: 106.5, close: 111.4 },
-  { time: '2026-06-12', open: 111.4, high: 113.2, low: 109.8, close: 110.5 },
-  { time: '2026-06-13', open: 110.5, high: 115.0, low: 110.0, close: 114.2 },
-  { time: '2026-06-14', open: 114.2, high: 116.5, low: 112.8, close: 115.8 },
-];
+type Timeframe = '1D' | '1W' | '1M';
 
 export default function App() {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [signal, setSignal] = useState<TradingSignal>('HOLD');
+  const [ticker, setTicker] = useState('AAPL');
+  const [searchInput, setSearchInput] = useState('AAPL');
+  const [timeframe, setTimeframe] = useState<Timeframe>('1M');
+  const [ohlcvData, setOhlcvData] = useState<OHLCV[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const ohlcvData: OHLCV[] = useMemo(() => {
-    return DUMMY_DATA.map(d => ({
-      date: d.time,
-      open: d.open,
-      high: d.high,
-      low: d.low,
-      close: d.close,
-      volume: 1000
-    }));
-  }, []);
+  useEffect(() => {
+    let range = '1mo';
+    let interval = '1d';
+    if (timeframe === '1D') {
+      range = '1d';
+      interval = '5m';
+    } else if (timeframe === '1W') {
+      range = '5d';
+      interval = '15m';
+    } else if (timeframe === '1M') {
+      range = '1mo';
+      interval = '1d';
+    }
+
+    setIsLoading(true);
+    fetchStockData(ticker, range, interval)
+      .then((data) => {
+        setOhlcvData(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [ticker, timeframe]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -59,7 +66,15 @@ export default function App() {
       wickDownColor: '#ff006e',
     });
 
-    candlestickSeries.setData(DUMMY_DATA);
+    const formattedData = ohlcvData.map(d => ({
+      time: d.date as Time,
+      open: d.open,
+      high: d.high,
+      low: d.low,
+      close: d.close,
+    }));
+    
+    candlestickSeries.setData(formattedData);
 
     if (ohlcvData.length >= 2) {
       const prevCandle = ohlcvData[ohlcvData.length - 2];
@@ -100,15 +115,15 @@ export default function App() {
     });
 
     const shortSMAData = shortSMAValues
-      .map((val, idx) => ({ time: DUMMY_DATA[idx].time, value: val }))
-      .filter((d): d is { time: string; value: number } => d.value !== null);
+      .map((val, idx) => ({ time: ohlcvData[idx].date as Time, value: val }))
+      .filter((d): d is { time: Time; value: number } => d.value !== null);
 
     const longSMAData = longSMAValues
-      .map((val, idx) => ({ time: DUMMY_DATA[idx].time, value: val }))
-      .filter((d): d is { time: string; value: number } => d.value !== null);
+      .map((val, idx) => ({ time: ohlcvData[idx].date as Time, value: val }))
+      .filter((d): d is { time: Time; value: number } => d.value !== null);
 
-    shortSMASeries.setData(shortSMAData);
-    longSMASeries.setData(longSMAData);
+    if (shortSMAData.length > 0) shortSMASeries.setData(shortSMAData);
+    if (longSMAData.length > 0) longSMASeries.setData(longSMAData);
 
     const currentSignal = getCyclicalSuggestion(ohlcvData, 3, 7);
     setSignal(currentSignal);
@@ -129,10 +144,29 @@ export default function App() {
     };
   }, [ohlcvData]);
 
+  const handleSearchSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      setTicker(searchInput.toUpperCase().trim());
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
         <h1 className="logo">Trend<span className="logo-accent">Ease</span></h1>
+        
+        <form className="search-container" onSubmit={handleSearchSubmit}>
+          <span className="search-icon">🔍</span>
+          <input 
+            type="text" 
+            className="search-input"
+            placeholder="Search symbol (e.g. AAPL)" 
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </form>
+
         <nav className="nav-links">
           <button className="nav-btn active">Markets</button>
           <button className="nav-btn">Portfolio</button>
@@ -147,14 +181,22 @@ export default function App() {
         <div className="chart-section card">
           <div className="chart-header">
             <div className="asset-info">
-              <h2>BTC / USD</h2>
-              <span className="price">$64,230.00</span>
-              <span className="change positive">+2.4%</span>
+              <h2>{ticker} / USD</h2>
+              {ohlcvData.length > 0 ? (
+                <>
+                  <span className="price">$\{ohlcvData[ohlcvData.length - 1].close.toFixed(2)}</span>
+                  <span className={`change ${ohlcvData[ohlcvData.length - 1].close >= ohlcvData[ohlcvData.length - 1].open ? 'positive' : 'negative'}`}>
+                    {((ohlcvData[ohlcvData.length - 1].close - ohlcvData[ohlcvData.length - 1].open) / ohlcvData[ohlcvData.length - 1].open * 100).toFixed(2)}%
+                  </span>
+                </>
+              ) : (
+                <span className="price">{isLoading ? 'Loading...' : 'No Data'}</span>
+              )}
             </div>
             <div className="chart-controls">
-              <button className="control-btn">1D</button>
-              <button className="control-btn active">1W</button>
-              <button className="control-btn">1M</button>
+              <button className={`control-btn ${timeframe === '1D' ? 'active' : ''}`} onClick={() => setTimeframe('1D')}>1D</button>
+              <button className={`control-btn ${timeframe === '1W' ? 'active' : ''}`} onClick={() => setTimeframe('1W')}>1W</button>
+              <button className={`control-btn ${timeframe === '1M' ? 'active' : ''}`} onClick={() => setTimeframe('1M')}>1M</button>
             </div>
           </div>
           <div className="chart-container" ref={chartContainerRef} />
@@ -184,7 +226,7 @@ export default function App() {
             <div className={`signal-item ${signal.toLowerCase() === 'buy' ? 'buy' : signal.toLowerCase() === 'sell' ? 'sell' : 'hold'}`}>
               <div className="signal-icon"></div>
               <div className="signal-details">
-                <span className="signal-asset">BTC / USD (Auto)</span>
+                <span className="signal-asset">{ticker} (Auto)</span>
                 <span className="signal-type">{signal === 'BUY' ? 'Strong Buy' : signal === 'SELL' ? 'Sell' : 'Hold'}</span>
               </div>
               <span className="signal-time">Just now</span>
