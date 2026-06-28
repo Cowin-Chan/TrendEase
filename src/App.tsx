@@ -266,12 +266,12 @@ export default function App() {
               </p>
               <p style={{ marginBottom: '12px' }}>
                 <strong style={{ color: '#00ff9d' }}>S1 (Support)</strong>: 
-                The historical price "floor". <br/>
+                A short-term price "floor" projected from recent trading data. <br/>
                 <strong style={{ color: '#fff' }}>Decision:</strong> Prices often bounce up from this line, making it a potentially safe zone to <strong>Buy</strong>.
               </p>
               <p>
                 <strong style={{ color: '#ff006e' }}>R1 (Resistance)</strong>: 
-                The historical price "ceiling". <br/>
+                A short-term price "ceiling" projected from recent trading data. <br/>
                 <strong style={{ color: '#fff' }}>Decision:</strong> Prices often struggle to break above this line, making it a good target to <strong>Sell / Take Profits</strong>.
               </p>
             </div>
