@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, FormEvent } from 'react';
-import { createChart, ColorType, CandlestickSeries, LineSeries, Time } from 'lightweight-charts';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { createChart, ColorType, CandlestickSeries, LineSeries, type Time } from 'lightweight-charts';
 import { calculateSupportResistance, getCyclicalSuggestion, type OHLCV, calculateSMA, type TradingSignal } from './lib/financial';
 import { fetchStockData } from './lib/api';
 import './App.css';
