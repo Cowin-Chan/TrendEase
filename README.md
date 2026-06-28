@@ -1,32 +1,59 @@
-# React + TypeScript + Vite
+# TrendEase
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+TrendEase is a modern web application built with **React**, **TypeScript**, and **Vite**. 
 
-Currently, two official plugins are available:
+This project is configured to be deployed automatically to GitHub Pages as a sub-project (e.g., `https://<your-username>.github.io/TrendEase`), allowing you to host it alongside a main portfolio page.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Getting Started
 
-## React Compiler
+To run this project locally on your machine, follow these steps:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
 
-## Expanding the Oxlint configuration
+Make sure you have [Node.js](https://nodejs.org/) (v20 or higher recommended) installed.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### Installation
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+1. Clone the repository (if you haven't already):
+   ```bash
+   git clone https://github.com/your-username/TrendEase.git
+   cd TrendEase
+   ```
+
+2. Install the dependencies:
+   ```bash
+   npm install
+   ```
+
+### Development Server
+
+Start the local Vite development server:
+```bash
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser to view the app. The page will reload automatically if you make edits.
+
+## 📦 Building for Production
+
+To build the app for production to the `dist` folder:
+```bash
+npm run build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 🌐 Deployment to GitHub Pages
+
+This project includes a **GitHub Actions workflow** (`.github/workflows/deploy.yml`) that automates the deployment process. 
+
+To deploy your app:
+1. Push your code to the `main` or `master` branch.
+2. In your GitHub repository, go to **Settings > Pages**.
+3. Under **Build and deployment**, set the **Source** to **GitHub Actions**.
+
+Whenever you push new changes to the main branch, GitHub Actions will automatically build your app and deploy it to `https://<your-username>.github.io/TrendEase`.
+
+## 🛠️ Tech Stack
+
+- **Framework:** [React 18](https://react.dev/)
+- **Bundler:** [Vite](https://vitejs.dev/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Linting:** [Oxlint](https://oxc.rs/docs/guide/usage/linter.html)
