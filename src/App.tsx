@@ -14,6 +14,20 @@ export default function App() {
   const [timeframe, setTimeframe] = useState<Timeframe>('1M');
   const [ohlcvData, setOhlcvData] = useState<OHLCV[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const formatVolume = (vol: number) => {
+    if (vol >= 1e9) return (vol / 1e9).toFixed(2) + 'B';
+    if (vol >= 1e6) return (vol / 1e6).toFixed(2) + 'M';
+    if (vol >= 1e3) return (vol / 1e3).toFixed(2) + 'K';
+    return vol.toString();
+  };
+
+  const periodHigh = ohlcvData.length > 0 ? Math.max(...ohlcvData.map(d => d.high)).toFixed(2) : 'N/A';
+  const periodLow = ohlcvData.length > 0 ? Math.min(...ohlcvData.map(d => d.low)).toFixed(2) : 'N/A';
+  const totalVolume = ohlcvData.length > 0 
+    ? formatVolume(ohlcvData.reduce((acc, curr) => acc + curr.volume, 0))
+    : 'N/A';
 
   useEffect(() => {
     let range = '1mo';
@@ -30,12 +44,15 @@ export default function App() {
     }
 
     setIsLoading(true);
+    setErrorMsg(null);
     fetchStockData(ticker, range, interval)
       .then((data) => {
         setOhlcvData(data);
       })
       .catch((err) => {
         console.error(err);
+        setErrorMsg(err.message || 'Failed to fetch data');
+        setOhlcvData([]);
       })
       .finally(() => {
         setIsLoading(false);
@@ -184,9 +201,9 @@ export default function App() {
               <h2>{ticker} / USD</h2>
               {ohlcvData.length > 0 ? (
                 <>
-                  <span className="price">$\{ohlcvData[ohlcvData.length - 1].close.toFixed(2)}</span>
-                  <span className={`change ${ohlcvData[ohlcvData.length - 1].close >= ohlcvData[ohlcvData.length - 1].open ? 'positive' : 'negative'}`}>
-                    {((ohlcvData[ohlcvData.length - 1].close - ohlcvData[ohlcvData.length - 1].open) / ohlcvData[ohlcvData.length - 1].open * 100).toFixed(2)}%
+                  <span className="price">${ohlcvData[ohlcvData.length - 1].close.toFixed(2)}</span>
+                  <span className={`change ${ohlcvData[ohlcvData.length - 1].close >= ohlcvData[0].open ? 'positive' : 'negative'}`}>
+                    {((ohlcvData[ohlcvData.length - 1].close - ohlcvData[0].open) / ohlcvData[0].open * 100).toFixed(2)}%
                   </span>
                 </>
               ) : (
@@ -199,7 +216,13 @@ export default function App() {
               <button className={`control-btn ${timeframe === '1M' ? 'active' : ''}`} onClick={() => setTimeframe('1M')}>1M</button>
             </div>
           </div>
-          <div className="chart-container" ref={chartContainerRef} />
+          {errorMsg ? (
+            <div className="error-message-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', color: '#ff006e' }}>
+              <h3>{errorMsg}</h3>
+            </div>
+          ) : (
+            <div className="chart-container" ref={chartContainerRef} />
+          )}
         </div>
 
         <div className="side-panel">
@@ -207,16 +230,16 @@ export default function App() {
             <h3>Market Highlights</h3>
             <ul className="stats-list">
               <li>
-                <span>24h Volume</span>
-                <strong>$34.2B</strong>
+                <span>Period High</span>
+                <strong>${periodHigh}</strong>
               </li>
               <li>
-                <span>Market Cap</span>
-                <strong>$1.2T</strong>
+                <span>Period Low</span>
+                <strong>${periodLow}</strong>
               </li>
               <li>
-                <span>Dominance</span>
-                <strong>52.4%</strong>
+                <span>Total Volume</span>
+                <strong>{totalVolume}</strong>
               </li>
             </ul>
           </div>
@@ -231,14 +254,28 @@ export default function App() {
               </div>
               <span className="signal-time">Just now</span>
             </div>
-            <div className="signal-item buy">
-              <div className="signal-icon"></div>
-              <div className="signal-details">
-                <span className="signal-asset">ETH / USD</span>
-                <span className="signal-type">Strong Buy</span>
-              </div>
-              <span className="signal-time">2m ago</span>
-            </div>
+          </div>
+
+          <div className="legend-guide card">
+            <h3>Legend & Guide</h3>
+            <ul className="stats-list" style={{ fontSize: '0.9em' }}>
+              <li>
+                <span style={{ color: '#2962FF', fontWeight: 'bold' }}>SMA(3)</span>
+                <strong>3-Period Average</strong>
+              </li>
+              <li>
+                <span style={{ color: '#FF6D00', fontWeight: 'bold' }}>SMA(7)</span>
+                <strong>7-Period Average</strong>
+              </li>
+              <li>
+                <span style={{ color: '#ff006e', fontWeight: 'bold' }}>R1</span>
+                <strong>Resistance Level 1</strong>
+              </li>
+              <li>
+                <span style={{ color: '#00ff9d', fontWeight: 'bold' }}>S1</span>
+                <strong>Support Level 1</strong>
+              </li>
+            </ul>
           </div>
         </div>
       </main>
