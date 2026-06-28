@@ -1,4 +1,4 @@
-﻿import { OHLCV } from './financial';
+import type { OHLCV } from './financial';
 
 export async function fetchStockData(
   ticker: string,

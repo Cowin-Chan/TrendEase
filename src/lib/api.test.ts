@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fetchStockData } from './api';
 
 const mockYahooResponse = {
@@ -51,15 +51,15 @@ describe('fetchStockData', () => {
   });
 
   it('should fetch and format stock data correctly', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockYahooResponse,
     } as Response);
 
     const result = await fetchStockData('AAPL');
 
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       'https://corsproxy.io/?url=https://query1.finance.yahoo.com/v8/finance/chart/AAPL?interval=1d%26range=1mo'
     );
     expect(result).toHaveLength(2);
@@ -74,7 +74,7 @@ describe('fetchStockData', () => {
   });
 
   it('should filter out data points with null values', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => mockYahooResponseWithNulls,
     } as Response);
@@ -93,7 +93,7 @@ describe('fetchStockData', () => {
   });
 
   it('should return empty array if data is missing', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ chart: { result: [] } }),
     } as Response);
@@ -103,7 +103,7 @@ describe('fetchStockData', () => {
   });
 
   it('should throw an error if fetch fails', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       statusText: 'Not Found',
     } as Response);
