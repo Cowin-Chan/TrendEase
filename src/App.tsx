@@ -148,7 +148,7 @@ export default function App() {
           <div className="chart-header">
             <div className="asset-info">
               <h2>BTC / USD</h2>
-              <span className="price">%64,230.00</span>
+              <span className="price">$64,230.00</span>
               <span className="change positive">+2.4%</span>
             </div>
             <div className="chart-controls">
