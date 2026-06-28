@@ -73,12 +73,6 @@ describe('Financial Module', () => {
     });
 
     it('generates BUY signal on Golden Cross', () => {
-      const data: OHLCV[] = [
-        // Long term stays flat at 10, short term starts below 10 and crosses above
-        { open: 1, high: 2, low: 0, close: 5, volume: 100 },
-        { open: 1, high: 2, low: 0, close: 10, volume: 100 },
-        { open: 1, high: 2, low: 0, close: 15, volume: 100 }, // short (2): 12.5, long(3): 10
-      ];
       // At index 1: shortSMA(2) = 7.5, longSMA(3) = null -> HOLD
       // Need 4 items to check prev vs current
       const data2: OHLCV[] = [
