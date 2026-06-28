@@ -147,16 +147,18 @@ export default function App() {
 
     chart.timeScale().fitContent();
 
-    const handleResize = () => {
-      if (chartContainerRef.current) {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        chart.applyOptions({ width: entry.contentRect.width });
       }
-    };
+    });
 
-    window.addEventListener('resize', handleResize);
+    if (chartContainerRef.current) {
+      resizeObserver.observe(chartContainerRef.current);
+    }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       chart.remove();
     };
   }, [ohlcvData]);

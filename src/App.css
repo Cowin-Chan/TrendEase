@@ -122,6 +122,7 @@
   gap: 1.5rem;
   padding: 2rem 2.5rem;
   flex: 1;
+  min-width: 0;
 }
 
 .card {
@@ -131,6 +132,7 @@
   border: 1px solid rgba(255, 255, 255, 0.03);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-width: 0;
 }
 
 .card:hover {
@@ -141,6 +143,7 @@
 .chart-section {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .chart-header {
@@ -345,7 +348,8 @@
 @media (max-width: 1024px) {
   .dashboard-main {
     grid-template-columns: 1fr;
-  }
+    min-width: 0;
+}
 }
 
 @media (max-width: 768px) {
@@ -383,7 +387,8 @@
 
   .dashboard-main {
     padding: 1rem;
-  }
+    min-width: 0;
+}
 
   .chart-header {
     flex-direction: column;
@@ -406,3 +411,5 @@
     min-height: 300px;
   }
 }
+
+
